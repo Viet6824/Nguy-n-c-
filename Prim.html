@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thuật Toán Prim</title> <!-- Đổi tiêu đề -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+<style type="text/css">
+  #mynetwork {
+    width: 800px;
+    height: 600px;
+    border: 1px solid lightgray;
+  }
+
+  #runButton {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  #totalLength {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Ví dụ về thuật toán Prim</h1> <!-- Đổi tiêu đề -->
+
+<div id="mynetwork"></div>
+<button id="runButton">chạy thuật toán Prim</button>
+<div id="totalLength"></div>
+
+<script type="text/javascript">
+  // Danh sách các đỉnh
+  const nodes = new vis.DataSet([
+    {id: 'a', label: 'a'},
+    {id: 'b', label: 'b'},
+    {id: 'c', label: 'c'},
+    {id: 'u', label: 'u'},
+    {id: 'd', label: 'd'},
+    {id: 'v', label: 'v'},
+    {id: 'y', label: 'y'},
+    {id: 'z', label: 'z'},
+    {id: 't', label: 't'}
+  ]);
+
+  // Danh sách các cạnh và độ dài
+  const edges = new vis.DataSet([
+    {from: 'a', to: 'b', label: '5'},
+    {from: 'a', to: 'c', label: '10'},
+    {from: 'a', to: 'u', label: '6'},
+    {from: 'b', to: 'd', label: '20'},
+    {from: 'b', to: 'c', label: '9'},
+    {from: 'c', to: 'u', label: '2'},
+    {from: 'c', to: 'd', label: '12'},
+    {from: 'c', to: 'v', label: '8'},
+    {from: 'v', to: 'd', label: '5'},
+    {from: 'd', to: 'y', label: '4'},
+    {from: 'v', to: 'y', label: '14'},
+    {from: 'y', to: 'z', label: '9'},
+    {from: 'v', to: 'z', label: '15'},
+    {from: 'z', to: 't', label: '4'},
+    {from: 'v', to: 't', label: '10'},
+    {from: 'u', to: 't', label: '22'}
+  ]);
+
+  // Tạo một mạng
+  const container = document.getElementById('mynetwork');
+  const data = {
+    nodes: nodes,
+    edges: edges
+  };
+  const options = {};
+  const network = new vis.Network(container, data, options);
+
+  // Function to run Prim's Algorithm
+  function runPrimAlgorithm() {
+    let visited = {};
+    let resultEdges = [];
+    let minDist = {};
+    let minEdge = {};
+    let totalLength = 0;
+
+    // Initialize visited and minDist
+    nodes.forEach(node => {
+      visited[node.id] = false;
+      minDist[node.id] = Infinity;
+    });
+
+    // Choose start node arbitrarily (here we choose 'a')
+    let currentNode = 'a';
+    minDist[currentNode] = 0;
+
+    // Loop until all nodes are visited
+    while (Object.values(visited).includes(false)) {
+      // Mark current node as visited
+      visited[currentNode] = true;
+
+      // Update minDist for neighbors of current node
+      edges.get({filter: function(edge) {
+        return edge.from === currentNode || edge.to === currentNode;
+      }}).forEach(edge => {
+        const neighbor = edge.from === currentNode ? edge.to : edge.from;
+        if (!visited[neighbor] && parseInt(edge.label) < minDist[neighbor]) {
+          minDist[neighbor] = parseInt(edge.label);
+          minEdge[neighbor] = currentNode;
+        }
+      });
+
+      // Find unvisited node with minimum distance
+      let min = Infinity;
+      let minNode;
+      Object.keys(minDist).forEach(node => {
+        if (!visited[node] && minDist[node] < min) {
+          min = minDist[node];
+          minNode = node;
+        }
+      });
+
+      // Add edge from minNode to current node to result
+      if (minNode) {
+        resultEdges.push({ from: minEdge[minNode], to: minNode, label: minDist[minNode] });
+        totalLength += minDist[minNode];
+        currentNode = minNode;
+      }
+    }
+
+    // Update the graph with the result edges
+    const mstEdges = new vis.DataSet(resultEdges);
+    network.setData({ nodes, edges: mstEdges });
+
+    // Display the total length
+    document.getElementById('totalLength').innerText = 'Total Length: ' + totalLength;
+  }
+
+  // Add click event listener to the button
+  document.getElementById('runButton').addEventListener('click', runPrimAlgorithm);
+</script>
+
+</body>
+</html>
