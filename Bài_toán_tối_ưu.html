@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài toán tối ưu
+</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  form {
+    margin-bottom: 20px;
+  }
+  label {
+    display: inline-block;
+    width: 150px;
+    margin-bottom: 10px;
+  }
+  input[type="text"] {
+    width: 300px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #result {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<form id="rentalForm">
+  <label for="numCustomers">Number of Customers:</label>
+  <input type="number" id="numCustomers" min="1" max="10" required>
+  <button type="button" onclick="generateInputs()">Generate Inputs</button>
+</form>
+<div id="inputs"></div>
+<button onclick="calculateMaxRent()">Calculate Max Rental Days</button>
+<div id="result"></div>
+
+<script>
+function generateInputs() {
+  const numCustomers = document.getElementById('numCustomers').value;
+  const inputsDiv = document.getElementById('inputs');
+  inputsDiv.innerHTML = '';
+
+  for (let i = 1; i <= numCustomers; i++) {
+    const customerLabel = document.createElement('label');
+    customerLabel.textContent = `Customer ${i} name: `;
+    const customerInput = document.createElement('input');
+    customerInput.type = 'text';
+    customerInput.name = `customerName${i}`;
+    customerInput.required = true;
+    inputsDiv.appendChild(customerLabel);
+    inputsDiv.appendChild(customerInput);
+    inputsDiv.appendChild(document.createElement('br'));
+
+    const rentalLabel = document.createElement('label');
+    rentalLabel.textContent = `Rental days for Customer ${i} (e.g., 1,2,3...30): `;
+    const rentalInput = document.createElement('input');
+    rentalInput.type = 'text';
+    rentalInput.name = `rentalDays${i}`;
+    rentalInput.placeholder = 'Enter rental days (e.g., 1,2,3...30)';
+    rentalInput.required = true;
+    inputsDiv.appendChild(rentalLabel);
+    inputsDiv.appendChild(rentalInput);
+    inputsDiv.appendChild(document.createElement('br'));
+  }
+}
+
+function calculateMaxRent() {
+  const numCustomers = document.getElementById('numCustomers').value;
+  const rentalDaysMap = {};
+
+  // Populate rental days map
+  for (let i = 1; i <= numCustomers; i++) {
+    const customerName = document.querySelector(`input[name="customerName${i}"]`).value;
+    const rentalDays = document.querySelector(`input[name="rentalDays${i}"]`).value.split(',').map(day => parseInt(day.trim()));
+
+    for (const day of rentalDays) {
+      if (!rentalDaysMap[day] || rentalDaysMap[day].count < rentalDays.length) {
+        rentalDaysMap[day] = { customers: [customerName], count: rentalDays.length };
+      } else if (rentalDaysMap[day].count === rentalDays.length) {
+        rentalDaysMap[day].customers.push(customerName);
+      }
+    }
+  }
+
+  // Calculate total rental days and find customers with unique rental days
+  const selectedCustomers = {};
+  let totalRentalDays = 0;
+  for (const [day, data] of Object.entries(rentalDaysMap)) {
+    if (data.customers.length > 1) {
+      totalRentalDays+=1 }
+	 else  {totalRentalDays += data.count;
+      selectedCustomers[data.customers[0]] = data.count;
+    }
+  }
+
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = `<br>`;
+  resultDiv.innerHTML += '<br>Selected customers:<ul>';
+  for (const [customer, days] of Object.entries(selectedCustomers)) {
+    resultDiv.innerHTML += `<li>${customer}: ${days} days</li>`;
+  }
+  resultDiv.innerHTML += '</ul>';
+}
+</script>
+</body>
+</html>

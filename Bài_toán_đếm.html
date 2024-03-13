@@ -1,0 +1,36 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>  Bài toán đếm  </title>
+</head>
+<body>
+<h1>Bài toán đếm  </h1>
+<p>Một cuộc thi có 10 người tham gia. Có bao nhiêu cách xếp hạng 3 người đầu tiên?</p>
+<button onclick="calculateRankingPossibilities()">Tính</button>
+<p id="result"></p>
+
+<script>
+function factorial(n) {
+    if (n === 0 || n === 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+function combination(n, k) {
+    return factorial(n) / (factorial(n - k));
+}
+
+function calculateRankingPossibilities() {
+    var totalWays = combination(10, 3);
+    document.getElementById("result").innerHTML = "Số cách xếp hạng 3 người đầu tiên là: " + totalWays;
+}
+</script>
+</body>
+</html>
+
+
+

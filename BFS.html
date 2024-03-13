@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Table</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #result {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<table id="rentalTable">
+  <thead>
+    <tr>
+      <th>Customer</th>
+      <th>Mon</th>
+      <th>Tue</th>
+      <th>Wed</th>
+      <th>Thu</th>
+      <th>Fri</th>
+      <th>Sat</th>
+      <th>Sun</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Customer 1</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+    </tr>
+    <tr>
+      <td>Customer 2</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+    </tr>
+    <!-- Add more rows for additional customers -->
+  </tbody>
+</table>
+<button onclick="calculateMaxRent()">Calculate Max Rental Days</button>
+<div id="result"></div>
+
+<script>
+function calculateMaxRent() {
+  const table = document.getElementById('rentalTable');
+  const rows = table.querySelectorAll('tbody tr');
+
+  let maxDays = 0;
+  let selectedDays = new Set();
+
+  rows.forEach(row => {
+    let days = 0;
+    row.querySelectorAll('td').forEach(cell => {
+      const day = parseInt(cell.textContent) || 0;
+      if (day >= 0 && day <= 30 && !selectedDays.has(day)) {
+        days += day;
+        selectedDays.add(day);
+      }
+    });
+    maxDays = Math.max(maxDays, days);
+  });
+
+  document.getElementById('result').textContent = `Maximum rental days without overlapping: ${maxDays}`;
+}
+</script>
+</body>
+</html>

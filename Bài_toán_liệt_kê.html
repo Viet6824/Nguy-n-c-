@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài toán liệt kê </title>
+</head>
+<body>
+<h1>Số nguyên tố có 2 chữ số:</h1>
+<ul id="primeList"></ul>
+
+<script>
+function isPrime(num) {
+    if (num <= 1) {
+        return false;
+    }
+    for (var i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var primeList = document.getElementById("primeList");
+    for (var i = 10; i <= 99; i++) {
+        if (isPrime(i)) {
+            var listItem = document.createElement("li");
+            listItem.textContent = i;
+            primeList.appendChild(listItem);
+        }
+    }
+});
+</script>
+</body>
+</html>
