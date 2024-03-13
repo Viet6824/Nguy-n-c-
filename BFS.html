@@ -3,97 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rental Table</title>
+<title>BFS Example</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  th {
-    background-color: #f2f2f2;
-  }
-  button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  #result {
-    margin-top: 10px;
-  }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1 {
+        font-size: 34px;
+        margin-bottom: 20px;
+    }
+
+    #graph {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 600px;
+        height: 530px;
+        border: 1px solid black;
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .node {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgb(28, 238, 249);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        font-size: 18px;
+    }
+
+    .edge {
+        position: absolute;
+        z-index: -1;
+        border-top: 2px solid black;
+        width: 50px;
+        transform-origin: 0 100%;
+    }
+
+    .path {
+        background-color: yellow;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #result {
+        margin-top: 20px;
+        font-size: 16px;
+    }
 </style>
 </head>
 <body>
-<table id="rentalTable">
-  <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Mon</th>
-      <th>Tue</th>
-      <th>Wed</th>
-      <th>Thu</th>
-      <th>Fri</th>
-      <th>Sat</th>
-      <th>Sun</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Customer 1</td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-    </tr>
-    <tr>
-      <td>Customer 2</td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-    </tr>
-    <!-- Add more rows for additional customers -->
-  </tbody>
-</table>
-<button onclick="calculateMaxRent()">Calculate Max Rental Days</button>
+<h1>BFS Example</h1>
+<div id="graph"></div>
+<label for="startNode">Start Node:</label>
+<input type="number" id="startNode" min="1" max="10">
+<label for="endNode">End Node:</label>
+<input type="number" id="endNode" min="1" max="10">
+<button id="runBtn">Run BFS</button>
 <div id="result"></div>
 
 <script>
-function calculateMaxRent() {
-  const table = document.getElementById('rentalTable');
-  const rows = table.querySelectorAll('tbody tr');
+    const graph = [
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 1, 0, 1, 0]
+    ];
 
-  let maxDays = 0;
-  let selectedDays = new Set();
+    const nodes = [
+        {x: 300, y: 50},
+        {x: 150, y: 150},
+        {x: 450, y: 150},
+        {x: 75, y: 250},
+        {x: 225, y: 250},
+        {x: 375, y: 250},
+        {x: 525, y: 250},
+        {x: 150, y: 350},
+        {x: 450, y: 350},
+        {x: 300, y: 450}
+    ];
 
-  rows.forEach(row => {
-    let days = 0;
-    row.querySelectorAll('td').forEach(cell => {
-      const day = parseInt(cell.textContent) || 0;
-      if (day >= 0 && day <= 30 && !selectedDays.has(day)) {
-        days += day;
-        selectedDays.add(day);
-      }
+    const graphContainer = document.getElementById('graph');
+    const nodeElements = [];
+    for (let i = 0; i < nodes.length; i++) {
+        const node = document.createElement('div');
+        node.classList.add('node');
+        node.textContent = i + 1;
+        node.style.left = `${nodes[i].x}px`;
+        node.style.top = `${nodes[i].y}px`;
+        graphContainer.appendChild(node);
+        nodeElements.push(node);
+    }
+
+    const edgeElements = [];
+    for (let i = 0; i < graph.length; i++) {
+        for (let j = i + 1; j < graph[i].length; j++) {
+            if (graph[i][j] === 1) {
+                const edge = document.createElement('div');
+                edge.classList.add('edge');
+                edge.style.left = `${nodes[i].x + 20}px`;
+                edge.style.top = `${nodes[i].y + 20}px`;
+                const dx = nodes[j].x - nodes[i].x;
+                const dy = nodes[j].y - nodes[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                edge.style.width = `${distance}px`;
+                edge.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+                graphContainer.appendChild(edge);
+                edgeElements.push(edge);
+            }
+        }
+    }
+
+    function BFS(start, end) {
+        const queue = [start];
+        const visited = new Set();
+        const parent = {};
+
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (current === end) {
+                return reconstructPath(parent, start, end);
+            }
+
+            visited.add(current);
+            for (let i = 0; i < graph[current].length; i++) {
+                if (graph[current][i] === 1 && !visited.has(i)) {
+                    queue.push(i);
+                    parent[i] = current;
+                }
+            }
+        }
+        return null;
+    }
+
+    function reconstructPath(parent, start, end) {
+        const path = [];
+        let current = end;
+        while (current !== start) {
+            path.unshift(current);
+            current = parent[current];
+        }
+        path.unshift(start);
+        return path;
+    }
+
+    document.getElementById('runBtn').addEventListener('click', () => {
+        const startNode = parseInt(document.getElementById('startNode').value) - 1;
+        const endNode = parseInt(document.getElementById('endNode').value) - 1;
+        const path = BFS(startNode, endNode);
+        if (path) {
+            document.getElementById('result').innerHTML = `Shortest path from Node ${startNode + 1} to Node ${endNode + 1}: ${path.map(node => node + 1).join(' -> ')}`;
+        } else {
+            document.getElementById('result').innerHTML = `There is no path from Node ${startNode + 1} to Node ${endNode + 1}.`;
+        }
     });
-    maxDays = Math.max(maxDays, days);
-  });
-
-  document.getElementById('result').textContent = `Maximum rental days without overlapping: ${maxDays}`;
-}
 </script>
 </body>
 </html>
